@@ -98,7 +98,7 @@ services:
     pids_limit: ${OPENWA_PIDS_LIMIT:-2048}
     mem_limit: ${OPENWA_MEM_LIMIT:-2g} # tune up for many concurrent sessions
     ports:
-      - '127.0.0.1:${API_PORT:-2785}:2785'
+      - '${API_PORT:-2785}:2785'
     expose:
       - '2785'
     environment:
@@ -550,9 +550,16 @@ networks:
   # docker.service.ts attaches orchestrated containers to it by literal name.
   openwa-network:
     name: openwa-network
-  # Isolated network for the Docker socket proxy. `internal: true` means no external
-  # connectivity; only openwa-api joins it, so nothing else can reach docker-proxy:2375.
-  # Plugins run inside openwa-api, so a loaded plugin can reach it too (see SECURITY.md).
+    # ponytail: pool padrão do docker esgotado por ~30 stacks — subnet fixa
+    ipam:
+      config:
+        - subnet: 172.40.0.0/16
+        # Isolated network for the Docker socket proxy. `internal: true` means no external
+        # connectivity; only openwa-api joins it, so nothing else can reach docker-proxy:2375.
+        # Plugins run inside openwa-api, so a loaded plugin can reach it too (see SECURITY.md).
   internal-docker:
     name: openwa-internal-docker
     internal: true
+    ipam:
+      config:
+        - subnet: 172.41.0.0/16
